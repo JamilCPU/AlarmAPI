@@ -1,0 +1,54 @@
+name: Build APK
+
+on:
+  push:
+    branches: [master]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Build debug APK
+        run: chmod +x gradlew && ./gradlew assembleDebug
+
+      - name: Get version name
+        id: version
+        run: |
+          VERSION=$(grep 'versionName' app/build.gradle.kts | head -1 | grep -oP '"[^"]*"' | tr -d '"')
+          echo "name=$VERSION" >> "$GITHUB_OUTPUT"
+
+      - name: Rename APK
+        run: cp app/build/outputs/apk/debug/app-debug.apk app/build/outputs/apk/debug/AlarmAPI-debug.apk
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ steps.version.outputs.name }}-build${{ github.run_number }}
+          name: AlarmAPI v${{ steps.version.outputs.name }} (build ${{ github.run_number }})
+          body: |
+            Automated build from commit ${{ github.sha }}.
+
+            Install: download `AlarmAPI-debug.apk` below and open on your Android device.
+          files: app/build/outputs/apk/debug/AlarmAPI-debug.apk
+          make_latest: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload APK artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: AlarmAPI-debug
+          path: app/build/outputs/apk/debug/AlarmAPI-debug.apk
