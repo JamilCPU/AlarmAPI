@@ -136,9 +136,9 @@ fun Application.createApiServer(
         get("/api/settings") {
             call.respond(mapOf(
                 "brainwash_host" to settings.brainwashHost,
-                "brainwash_port" to settings.brainwashPort,
-                "api_server_port" to settings.apiServerPort,
-                "snooze_duration_minutes" to settings.snoozeDurationMinutes
+                "brainwash_port" to settings.brainwashPort.toString(),
+                "api_server_port" to settings.apiServerPort.toString(),
+                "snooze_duration_minutes" to settings.snoozeDurationMinutes.toString()
             ))
         }
     }

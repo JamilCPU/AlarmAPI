@@ -2,6 +2,7 @@ plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
     id("org.jetbrains.kotlin.plugin.serialization")
+    id("org.jetbrains.kotlin.kapt")
 }
 
 android {
@@ -40,6 +41,16 @@ android {
     buildFeatures {
         viewBinding = true
     }
+
+    packaging {
+        resources {
+            excludes += setOf(
+                "META-INF/INDEX.LIST",
+                "META-INF/io.netty.versions.properties",
+                "META-INF/DEPENDENCIES"
+            )
+        }
+    }
 }
 
 dependencies {
@@ -72,7 +83,7 @@ dependencies {
     // Room (local alarm database)
     implementation("androidx.room:room-runtime:2.6.1")
     implementation("androidx.room:room-ktx:2.6.1")
-    annotationProcessor("androidx.room:room-compiler:2.6.1")
+    kapt("androidx.room:room-compiler:2.6.1")
 
     // Testing
     testImplementation("junit:junit:4.13.2")
